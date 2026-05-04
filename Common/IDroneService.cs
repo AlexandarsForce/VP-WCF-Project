@@ -11,7 +11,7 @@ namespace Common
     public interface IDroneService
     {
         [OperationContract]
-        void StartSession(string meta);
+        void StartSession(SessionData meta);
 
         [OperationContract]
         void PushSample(DroneSample sample);

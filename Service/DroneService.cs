@@ -9,7 +9,7 @@ namespace Service
 {
     public class DroneService : IDroneService
     {
-        public void StartSession(string meta)
+        public void StartSession(SessionData meta)
         {
             throw new NotImplementedException();
         }
