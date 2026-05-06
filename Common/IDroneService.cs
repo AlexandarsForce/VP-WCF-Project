@@ -14,7 +14,7 @@ namespace Common
         void StartSession(SessionData meta);
 
         [OperationContract]
-        void PushSample(DroneSample sample);
+        ResponseSample PushSample(DroneSample sample);
 
         [OperationContract]
         void EndSession();

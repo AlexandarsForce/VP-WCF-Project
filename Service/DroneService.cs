@@ -14,7 +14,7 @@ namespace Service
             throw new NotImplementedException();
         }
 
-        public void PushSample(DroneSample sample)
+        public ResponseSample PushSample(DroneSample sample)
         {
             throw new NotImplementedException();
         }
