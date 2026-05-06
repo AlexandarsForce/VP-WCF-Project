@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
@@ -11,9 +12,13 @@ namespace Common
     public interface IDroneService
     {
         [OperationContract]
+        [FaultContract(typeof(DataFormatFault))]
+        [FaultContract(typeof(ValidationFault))]
         void StartSession(SessionData meta);
 
         [OperationContract]
+        [FaultContract(typeof(DataFormatFault))]
+        [FaultContract(typeof(ValidationFault))]
         ResponseSample PushSample(DroneSample sample);
 
         [OperationContract]
