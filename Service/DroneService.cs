@@ -2,10 +2,6 @@
 using Common.Enumerations;
 using Common.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ServiceModel;
 using Service.Services;
 
@@ -17,12 +13,22 @@ namespace Service
         {
             try
             {
+                ValidationService.ValidateSession(meta);
                 return new ResponseData("Session started successfully.", ResponseStatusType.ACK, SessionStatusType.IN_PROGRESS);
             }
-            catch (Exception ex)
+            catch (FaultException<DataFormatFault> exDff)
             {
-                return new ResponseData($"Failed to start session: {ex.Message}", ResponseStatusType.NACK, SessionStatusType.COMPLETED);
+                Console.WriteLine($"Data format error: {exDff.Detail.Message}");
             }
+            catch (FaultException<ValidationFault> exVf)
+            {
+                Console.WriteLine($"Validation error: {exVf.Detail.Message}");  
+            }
+            catch (Exception ex)
+            { 
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+            return new ResponseData($"Failed to start session.", ResponseStatusType.NACK, SessionStatusType.COMPLETED);
         }
 
         public ResponseData PushSample(DroneSample sample)

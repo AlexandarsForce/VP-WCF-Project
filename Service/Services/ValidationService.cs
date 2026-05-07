@@ -1,17 +1,41 @@
 ﻿using Common;
 using Common.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service.Services
 {
     public static class ValidationService
     {
         private static readonly double[] maxLinearAccelerations = { 1500, 1500, 1500 };
+        private static readonly string[] validSampleHeader = { "LinearAccelerationX", "LinearAccelerationY", "LinearAccelerationZ", "WindSpeed", "WindAngle", "Time" };
+
+        public static void ValidateSession(SessionData meta)
+        {
+            if (meta == null)
+            {
+                throw new FaultException<DataFormatFault>(new DataFormatFault("Session metadata cannot be null!"));
+            }
+            if (string.IsNullOrEmpty(meta.FileName))
+            {
+                throw new FaultException<DataFormatFault>(new DataFormatFault("File name cannot be null or empty!"));
+            }
+            if (meta.SampleCount <= 0)
+            {
+                throw new FaultException<ValidationFault>(new ValidationFault("Sample count must be greater than 0!"));
+            }
+            if (meta.SampleHeader == null || meta.SampleHeader.Length == 0)
+            {
+                throw new FaultException<DataFormatFault>(new DataFormatFault("Sample header cannot be null or empty!"));
+            }
+            if (!meta.SampleHeader.SequenceEqual(validSampleHeader))
+            {
+                throw new FaultException<ValidationFault>(new ValidationFault("Sample header is not valid!"));
+            }
+        }
+
+
         public static void ValidateSample(DroneSample sample)
         {
             if (sample == null)
