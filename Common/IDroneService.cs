@@ -14,14 +14,14 @@ namespace Common
         [OperationContract]
         [FaultContract(typeof(DataFormatFault))]
         [FaultContract(typeof(ValidationFault))]
-        void StartSession(SessionData meta);
+        ResponseData StartSession(SessionData meta);
 
         [OperationContract]
         [FaultContract(typeof(DataFormatFault))]
         [FaultContract(typeof(ValidationFault))]
-        ResponseSample PushSample(DroneSample sample);
+        ResponseData PushSample(DroneSample sample);
 
         [OperationContract]
-        void EndSession();
+        ResponseData EndSession();
     }
 }

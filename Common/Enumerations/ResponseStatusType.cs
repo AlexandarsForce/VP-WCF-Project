@@ -1,7 +1,7 @@
 ﻿
 namespace Common.Enumerations
 {
-    public enum ResponseStatus
+    public enum ResponseStatusType
     {
         ACK,
         NACK

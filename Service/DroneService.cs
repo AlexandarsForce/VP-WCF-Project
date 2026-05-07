@@ -1,27 +1,63 @@
 ﻿using Common;
+using Common.Enumerations;
+using Common.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ServiceModel;
+using Service.Services;
 
 namespace Service
 {
     public class DroneService : IDroneService
     {
-        public void StartSession(SessionData meta)
+        public ResponseData StartSession(SessionData meta)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return new ResponseData("Session started successfully.", ResponseStatusType.ACK, SessionStatusType.IN_PROGRESS);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseData($"Failed to start session: {ex.Message}", ResponseStatusType.NACK, SessionStatusType.COMPLETED);
+            }
         }
 
-        public ResponseSample PushSample(DroneSample sample)
+        public ResponseData PushSample(DroneSample sample)
         {
-            throw new NotImplementedException();
+            try
+            {
+                ValidationService.ValidateSample(sample);
+                return new ResponseData("Sample pushed successfully.", ResponseStatusType.ACK, SessionStatusType.IN_PROGRESS);
+            }
+            catch(FaultException<DataFormatFault> exDff) 
+            {
+                Console.WriteLine($"Data format error: {exDff.Detail.Message}");
+            }
+            catch(FaultException<ValidationFault> exVf) 
+            { 
+                Console.WriteLine($"Validation error: {exVf.Detail.Message}");
+            }
+            catch (Exception ex)
+            { 
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+
+            return new ResponseData($"Failed to push sample", ResponseStatusType.NACK, SessionStatusType.IN_PROGRESS);
         }
 
-        public void EndSession()
+        public ResponseData EndSession()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return new ResponseData("Session ended successfully.", ResponseStatusType.ACK, SessionStatusType.COMPLETED);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseData($"Failed to end session: {ex.Message}", ResponseStatusType.NACK, SessionStatusType.IN_PROGRESS);
+            }
         }
     }
 }

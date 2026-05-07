@@ -1,7 +1,7 @@
 ﻿
 namespace Common.Enumerations
 {
-    public enum SessionStatus
+    public enum SessionStatusType
     {
         IN_PROGRESS,
         COMPLETED

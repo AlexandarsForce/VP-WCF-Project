@@ -10,5 +10,8 @@ namespace Common
 
         [DataMember]
         public int SampleCount { get; set; }
+
+        [DataMember]
+        public string[] SampleHeader { get; set; }
     }
 }
