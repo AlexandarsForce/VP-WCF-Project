@@ -5,16 +5,18 @@ using System;
 using System.ServiceModel;
 using Service.Services;
 
-namespace Service
+namespace Service.Services
 {
     public class DroneService : IDroneService
     {
+        private SessionStatusType sessionStatus;
         public ResponseData StartSession(SessionData meta)
         {
             try
             {
                 ValidationService.ValidateSession(meta);
-                return new ResponseData("Session started successfully.", ResponseStatusType.ACK, SessionStatusType.IN_PROGRESS);
+                sessionStatus = SessionStatusType.IN_PROGRESS;
+                return new ResponseData("Session started successfully.", ResponseStatusType.ACK, sessionStatus);
             }
             catch (FaultException<DataFormatFault> exDff)
             {
@@ -28,7 +30,8 @@ namespace Service
             { 
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
-            return new ResponseData($"Failed to start session.", ResponseStatusType.NACK, SessionStatusType.COMPLETED);
+            sessionStatus = SessionStatusType.COMPLETED;
+            return new ResponseData($"Failed to start session.", ResponseStatusType.NACK, sessionStatus);
         }
 
         public ResponseData PushSample(DroneSample sample)
@@ -36,7 +39,7 @@ namespace Service
             try
             {
                 ValidationService.ValidateSample(sample);
-                return new ResponseData("Sample pushed successfully.", ResponseStatusType.ACK, SessionStatusType.IN_PROGRESS);
+                return new ResponseData("Sample pushed successfully.", ResponseStatusType.ACK,sessionStatus);
             }
             catch(FaultException<DataFormatFault> exDff) 
             {
@@ -51,18 +54,19 @@ namespace Service
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
 
-            return new ResponseData($"Failed to push sample", ResponseStatusType.NACK, SessionStatusType.IN_PROGRESS);
+            return new ResponseData($"Failed to push sample", ResponseStatusType.NACK, sessionStatus);
         }
 
         public ResponseData EndSession()
         {
             try
             {
-                return new ResponseData("Session ended successfully.", ResponseStatusType.ACK, SessionStatusType.COMPLETED);
+                sessionStatus = SessionStatusType.COMPLETED;
+                return new ResponseData("Session ended successfully.", ResponseStatusType.ACK, sessionStatus);
             }
             catch (Exception ex)
             {
-                return new ResponseData($"Failed to end session: {ex.Message}", ResponseStatusType.NACK, SessionStatusType.IN_PROGRESS);
+                return new ResponseData($"Failed to end session: {ex.Message}", ResponseStatusType.NACK, sessionStatus);
             }
         }
     }

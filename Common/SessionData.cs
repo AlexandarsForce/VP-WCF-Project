@@ -6,12 +6,11 @@ namespace Common
     public class SessionData
     {
         [DataMember]
-        public string FileName { get; set; }
-
-        [DataMember]
-        public int SampleCount { get; set; }
-
-        [DataMember]
         public string[] SampleHeader { get; set; }
+
+        public SessionData(string[] sampleHeader)
+        {
+            SampleHeader = sampleHeader;
+        }
     }
 }

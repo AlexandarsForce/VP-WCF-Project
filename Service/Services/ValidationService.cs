@@ -17,14 +17,6 @@ namespace Service.Services
             {
                 throw new FaultException<DataFormatFault>(new DataFormatFault("Session metadata cannot be null!"));
             }
-            if (string.IsNullOrEmpty(meta.FileName))
-            {
-                throw new FaultException<DataFormatFault>(new DataFormatFault("File name cannot be null or empty!"));
-            }
-            if (meta.SampleCount <= 0)
-            {
-                throw new FaultException<ValidationFault>(new ValidationFault("Sample count must be greater than 0!"));
-            }
             if (meta.SampleHeader == null || meta.SampleHeader.Length == 0)
             {
                 throw new FaultException<DataFormatFault>(new DataFormatFault("Sample header cannot be null or empty!"));
