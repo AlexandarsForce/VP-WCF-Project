@@ -19,8 +19,6 @@ namespace Service
                 Console.ReadKey();
                 host.Close();
             }
-            Console.WriteLine("Service has been terminated");
-            Console.ReadKey();
         }
     }
 }

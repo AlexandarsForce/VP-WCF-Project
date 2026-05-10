@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 
 
-namespace Common
+namespace Common.Contracts
 {
     [DataContract]
     public class ResponseData

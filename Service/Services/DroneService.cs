@@ -4,57 +4,64 @@ using Common.Exceptions;
 using System;
 using System.ServiceModel;
 using Service.Services;
+using Common.Contracts;
 
 namespace Service.Services
 {
     public class DroneService : IDroneService
     {
-        private SessionStatusType sessionStatus;
+        private static SessionStatusType sessionStatus = SessionStatusType.COMPLETED;
+
         public ResponseData StartSession(SessionData meta)
         {
+            string responseMessage = "Session started successfully.";
             try
             {
                 ValidationService.ValidateSession(meta);
                 sessionStatus = SessionStatusType.IN_PROGRESS;
-                return new ResponseData("Session started successfully.", ResponseStatusType.ACK, sessionStatus);
+                return new ResponseData(responseMessage, ResponseStatusType.ACK, sessionStatus);
             }
             catch (FaultException<DataFormatFault> exDff)
             {
-                Console.WriteLine($"Data format error: {exDff.Detail.Message}");
+                responseMessage = $"Data format error: {exDff.Detail.Message}";
             }
             catch (FaultException<ValidationFault> exVf)
             {
-                Console.WriteLine($"Validation error: {exVf.Detail.Message}");  
+                responseMessage = $"Validation error: {exVf.Detail.Message}";  
             }
             catch (Exception ex)
             { 
-                Console.WriteLine($"Unexpected error: {ex.Message}");
+                responseMessage = $"Unexpected error: {ex.Message}";
             }
             sessionStatus = SessionStatusType.COMPLETED;
-            return new ResponseData($"Failed to start session.", ResponseStatusType.NACK, sessionStatus);
+            return new ResponseData($"Failed to start session : {responseMessage}", ResponseStatusType.NACK, sessionStatus);
         }
 
         public ResponseData PushSample(DroneSample sample)
         {
-            try
+            string responseMessage = "Session is not in progress.";
+            if (sessionStatus == SessionStatusType.IN_PROGRESS)
             {
-                ValidationService.ValidateSample(sample);
-                return new ResponseData("Sample pushed successfully.", ResponseStatusType.ACK,sessionStatus);
+                try
+                {
+                    ValidationService.ValidateSample(sample);
+                    responseMessage = "Sample pushed successfully.";
+                    return new ResponseData(responseMessage, ResponseStatusType.ACK, sessionStatus);
+                }
+                catch (FaultException<DataFormatFault> exDff)
+                {
+                    responseMessage = $"Data format error: {exDff.Detail.Message}";
+                }
+                catch (FaultException<ValidationFault> exVf)
+                {
+                    responseMessage = $"Validation error: {exVf.Detail.Message}";
+                }
+                catch (Exception ex)
+                {
+                    responseMessage = $"Unexpected error: {ex.Message}";
+                }
             }
-            catch(FaultException<DataFormatFault> exDff) 
-            {
-                Console.WriteLine($"Data format error: {exDff.Detail.Message}");
-            }
-            catch(FaultException<ValidationFault> exVf) 
-            { 
-                Console.WriteLine($"Validation error: {exVf.Detail.Message}");
-            }
-            catch (Exception ex)
-            { 
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-            }
-
-            return new ResponseData($"Failed to push sample", ResponseStatusType.NACK, sessionStatus);
+            return new ResponseData($"Failed to push sample : {responseMessage}", ResponseStatusType.NACK, sessionStatus);
         }
 
         public ResponseData EndSession()

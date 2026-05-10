@@ -1,4 +1,5 @@
 ﻿using Common;
+using Common.Contracts;
 using Common.Exceptions;
 using System;
 using System.Linq;
