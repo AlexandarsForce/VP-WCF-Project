@@ -28,7 +28,6 @@ namespace Service.Services
             }
         }
 
-
         public static void ValidateSample(DroneSample sample)
         {
             if (sample == null)

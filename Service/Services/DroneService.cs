@@ -8,9 +8,22 @@ using Common.Contracts;
 
 namespace Service.Services
 {
-    public class DroneService : IDroneService
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,ConcurrencyMode = ConcurrencyMode.Single)]
+    public class DroneService : IDroneService, IDisposable
     {
+        private WriterService writerService;
+
         private static SessionStatusType sessionStatus = SessionStatusType.COMPLETED;
+        private bool disposed = false;
+
+        public DroneService()
+        {
+            writerService = new WriterService();
+        }
+        ~DroneService()
+        {
+            Dispose(false);
+        }
 
         public ResponseData StartSession(SessionData meta)
         {
@@ -19,6 +32,7 @@ namespace Service.Services
             {
                 ValidationService.ValidateSession(meta);
                 sessionStatus = SessionStatusType.IN_PROGRESS;
+                writerService.StartSession("measurements_session.csv", "rejects.csv");
                 return new ResponseData(responseMessage, ResponseStatusType.ACK, sessionStatus);
             }
             catch (FaultException<DataFormatFault> exDff)
@@ -27,10 +41,10 @@ namespace Service.Services
             }
             catch (FaultException<ValidationFault> exVf)
             {
-                responseMessage = $"Validation error: {exVf.Detail.Message}";  
+                responseMessage = $"Validation error: {exVf.Detail.Message}";
             }
             catch (Exception ex)
-            { 
+            {
                 responseMessage = $"Unexpected error: {ex.Message}";
             }
             sessionStatus = SessionStatusType.COMPLETED;
@@ -46,6 +60,7 @@ namespace Service.Services
                 {
                     ValidationService.ValidateSample(sample);
                     responseMessage = "Sample pushed successfully.";
+                    writerService.WriteValidSample(sample);
                     return new ResponseData(responseMessage, ResponseStatusType.ACK, sessionStatus);
                 }
                 catch (FaultException<DataFormatFault> exDff)
@@ -61,6 +76,7 @@ namespace Service.Services
                     responseMessage = $"Unexpected error: {ex.Message}";
                 }
             }
+            writerService.WriteInvalidSample(sample, responseMessage);
             return new ResponseData($"Failed to push sample : {responseMessage}", ResponseStatusType.NACK, sessionStatus);
         }
 
@@ -68,12 +84,32 @@ namespace Service.Services
         {
             try
             {
+                writerService.EndSession();
                 sessionStatus = SessionStatusType.COMPLETED;
                 return new ResponseData("Session ended successfully.", ResponseStatusType.ACK, sessionStatus);
             }
             catch (Exception ex)
             {
                 return new ResponseData($"Failed to end session: {ex.Message}", ResponseStatusType.NACK, sessionStatus);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    EndSession();
+                    writerService?.Dispose();
+                }
+                disposed = true;
             }
         }
     }
