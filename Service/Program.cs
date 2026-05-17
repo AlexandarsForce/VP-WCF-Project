@@ -12,12 +12,32 @@ namespace Service
     {
         static void Main(string[] args)
         {
-            using (ServiceHost host = new ServiceHost(typeof(DroneService)))
+            ServiceHost host = null;
+            bool isFinished = false;
+
+            try
             {
-                host.Open();
-                Console.WriteLine("Service is running. Press any key to terminate it...");
-                Console.ReadKey();
-                host.Close();
+                using (host = new ServiceHost(typeof(DroneService)))
+                {
+                    host.Open();
+                    Console.WriteLine("Service is running. Press any key to terminate it...");
+                    Console.ReadKey();
+                }
+                isFinished = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred while starting the service: " + ex.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Service has been terminated.");
+                if (host != null)
+                {
+                    if (!isFinished)
+                    { host.Abort(); }
+                    host.Close();
+                }
             }
         }
     }

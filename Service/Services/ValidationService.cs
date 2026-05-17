@@ -9,7 +9,7 @@ namespace Service.Services
 {
     public static class ValidationService
     {
-        private static readonly double[] maxLinearAccelerations = { 1500, 1500, 1500 };
+        private static readonly double[] maxLinearAccelerations = { 20, 20, 20 };
         private static readonly string[] validSampleHeader = { "LinearAccelerationX", "LinearAccelerationY", "LinearAccelerationZ", "WindSpeed", "WindAngle", "Time" };
 
         public static void ValidateSession(SessionData meta)
@@ -37,15 +37,15 @@ namespace Service.Services
 
             if (Math.Abs(sample.LinearAccelerationX) > maxLinearAccelerations[0])
             {
-                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration X value exceeds the maximum limit!"));
+                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration X value exceeds the limit!"));
             }
             if (Math.Abs(sample.LinearAccelerationY) > maxLinearAccelerations[1])
             {
-                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration Y value exceeds the maximum limit!"));
+                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration Y value exceeds the limit!"));
             }
             if (Math.Abs(sample.LinearAccelerationZ) > maxLinearAccelerations[2])
             {
-                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration Z value exceeds the maximum limit!"));
+                throw new FaultException<ValidationFault>(new ValidationFault("Linear acceleration Z value exceeds the limit!"));
             }
 
             if (sample.WindSpeed <= 0)

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client
@@ -18,8 +19,8 @@ namespace Client
 
         public SampleReader(string sampleFileName, string errorFileName)
         {
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"..\\..\\Dataset", sampleFileName);
-            if(!File.Exists(filePath))
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\Dataset", sampleFileName);
+            if (!File.Exists(filePath))
             {
                 throw new Exception($"The file '{filePath}' does not exist.");
             }
@@ -45,13 +46,20 @@ namespace Client
             List<DroneSample> samples = new List<DroneSample>(sampleCountLimit);
 
             const int fieldCountLimit = 21;
-            string sampleLine = sampleReader.ReadLine();
+            sampleReader.ReadLine();
+            string sampleLine;
             int sampleIndex = 0;
             int lineIndex = 1;
 
-            while( (sampleLine = sampleReader.ReadLine()) != null && sampleIndex < sampleCountLimit)
+            while (sampleIndex < sampleCountLimit)
             {
-                string [] sampleParts = sampleLine.Split(',');
+                if (sampleReader == null)
+                {
+                    break;
+                }
+                sampleLine = sampleReader.ReadLine();
+
+                string[] sampleParts = sampleLine.Split(',');
                 if (sampleParts.Length < fieldCountLimit)
                 {
                     errorWriter.WriteLine($"Line {lineIndex}, {sampleLine}, Error message: Invalid field count: {sampleParts.Length} / {fieldCountLimit}");
@@ -60,6 +68,7 @@ namespace Client
                 {
                     try
                     {
+                        //SimulateException(); // - Uncomment this line to test exception handling and resource cleanup
                         DroneSample sample = new DroneSample
                         {
                             LinearAccelerationX = double.Parse(sampleParts[18], CultureInfo.InvariantCulture),
@@ -72,21 +81,25 @@ namespace Client
                         samples.Add(sample);
                         sampleIndex++;
                     }
+                    catch (ObjectDisposedException dex)
+                    {
+                        Console.WriteLine($"ObjectDisposedException caught: {dex.Message}");
+                    }
                     catch (Exception ex)
                     {
-                        errorWriter.WriteLine($"Line {lineIndex}, {sampleLine}, Error message: Invalid data format!");
+                        errorWriter.WriteLine($"Line {lineIndex}, {sampleLine}, Error message: {ex.Message}");
                     }
                 }
-
                 lineIndex++;
             }
-
-            while((sampleLine = sampleReader.ReadLine()) != null)
+            if (sampleReader != null)
             {
-                errorWriter.WriteLine($"Line {lineIndex}, {sampleLine}, Error message: Reached sample count limit!");
-                lineIndex++;
+                while ((sampleLine = sampleReader.ReadLine()) != null)
+                {
+                    errorWriter.WriteLine($"Line {lineIndex}, {sampleLine}, Error message: Reached sample count limit!");
+                    lineIndex++;
+                }
             }
-
             return samples;
         }
 
@@ -116,6 +129,16 @@ namespace Client
                 }
 
                 disposed = true;
+            }
+        }
+
+        private void SimulateException()
+        {
+            Console.WriteLine("Simulating an exception for testing purposes...");
+            Dispose();
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(SampleReader), "Cannot perform this operation on a disposed SampleReader.");
             }
         }
     }
