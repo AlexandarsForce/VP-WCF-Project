@@ -2,6 +2,7 @@
 using Common.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Sockets;
 using System.ServiceModel;
@@ -18,6 +19,9 @@ namespace Client
             ChannelFactory<IDroneService> channelFactory = new ChannelFactory<IDroneService>("DroneServiceEndpoint");
             IDroneService proxy = channelFactory.CreateChannel();
             ResponseData sessionResponse;
+
+            string inputFilePath = ConfigurationManager.AppSettings["inputFilePath"];
+            string errorFilePath = ConfigurationManager.AppSettings["errorFilePath"];
             int sampleCount = 100;
             bool isFinished = false;
             try
@@ -29,7 +33,7 @@ namespace Client
                 Console.WriteLine($" {sessionResponse.SessionStatus,-15} | {sessionResponse.ResponseStatus,-10} | {sessionResponse.Message}");
 
                 List<DroneSample> samples = new List<DroneSample>();
-                using (SampleReader sampleReader = new SampleReader("278.csv", "278_errors.csv"))
+                using (SampleReader sampleReader = new SampleReader(inputFilePath, errorFilePath))
                 {
                     samples = sampleReader.ReadSamples(sampleCount);
                 }
