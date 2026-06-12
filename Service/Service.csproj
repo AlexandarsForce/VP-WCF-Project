@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\Arguments\TransferArgument.cs" />
     <Compile Include="Services\DroneService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Dataset\log_session.csv" />
     <None Include="Dataset\measurements_session.csv" />
     <None Include="Errors\rejects.csv" />
   </ItemGroup>

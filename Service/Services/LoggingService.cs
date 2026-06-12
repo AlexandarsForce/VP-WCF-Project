@@ -18,7 +18,7 @@ namespace Service.Services
             {
                 File.Create(filePath).Dispose();
             }
-            logWriter = new StreamWriter(filePath, true, Encoding.UTF8);
+            logWriter = new StreamWriter(filePath, false, Encoding.UTF8);
         }
         ~LoggingService()
         {
