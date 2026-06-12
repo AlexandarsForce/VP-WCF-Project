@@ -12,6 +12,7 @@ namespace Service.Services
     public class DroneService : IDroneService, IDisposable
     {
         private WriterService writerService;
+        private LoggingService loggingService;
 
         private static SessionStatusType sessionStatus = SessionStatusType.COMPLETED;
         private bool disposed = false;
@@ -19,6 +20,7 @@ namespace Service.Services
         public DroneService()
         {
             writerService = new WriterService();
+            loggingService = new LoggingService("log_session.csv");
         }
         ~DroneService()
         {
@@ -33,6 +35,8 @@ namespace Service.Services
                 ValidationService.ValidateSession(meta);
                 sessionStatus = SessionStatusType.IN_PROGRESS;
                 writerService.StartSession("measurements_session.csv", "rejects.csv");
+                Console.WriteLine(responseMessage);
+                Console.WriteLine("Transfer in progress...");
                 return new ResponseData(responseMessage, ResponseStatusType.ACK, sessionStatus);
             }
             catch (FaultException<DataFormatFault> exDff)
@@ -86,6 +90,8 @@ namespace Service.Services
             {
                 writerService.EndSession();
                 sessionStatus = SessionStatusType.COMPLETED;
+                Console.WriteLine("Transfer completed.");
+                Console.WriteLine("Session ended successfully.");
                 return new ResponseData("Session ended successfully.", ResponseStatusType.ACK, sessionStatus);
             }
             catch (Exception ex)
@@ -108,6 +114,7 @@ namespace Service.Services
                 {
                     EndSession();
                     writerService?.Dispose();
+                    loggingService?.Dispose();
                 }
                 disposed = true;
             }
