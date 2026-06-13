@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enumerations\AnalysisStatusType.cs" />
     <Compile Include="Enumerations\LogStatusType.cs" />
     <Compile Include="Enumerations\SessionStatusType.cs" />
     <Compile Include="Exceptions\DataFormatFault.cs" />

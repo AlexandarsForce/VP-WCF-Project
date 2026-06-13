@@ -14,6 +14,7 @@ namespace Service.Services
     {
         private WriterService writerService;
         private LoggingService loggingService;
+        private AnalysisService analysisService;
 
         private static SessionStatusType sessionStatus = SessionStatusType.COMPLETED;
         private bool disposed = false;
@@ -29,11 +30,15 @@ namespace Service.Services
         {
             writerService = new WriterService();
             loggingService = new LoggingService("log_session.csv");
+            analysisService = new AnalysisService();
 
                 TransferStarted += OnTransferStarted;
                 TransferSample += OnSampleReceived;
                 TransferCompleted += OnTransferCompleted;
                 TransferWarning += OnWarningRaised;
+
+                analysisService.AccelerationSpike += OnAccelerationSpikeDetected;
+                analysisService.OutOfBandWarning += OnOutOfBandWarningDetected;
         }
         ~DroneService()
         {
@@ -80,6 +85,7 @@ namespace Service.Services
                 try
                 {
                     ValidationService.ValidateSample(sample);
+                    analysisService.AnalyzeSample(sample);
                     responseMessage = "Sample pushed successfully.";
                     writerService.WriteValidSample(sample);
                     TransferSample?.Invoke(this, new TransferArgument { Message = responseMessage, LogStatus = LogStatusType.INFO });
@@ -136,6 +142,15 @@ namespace Service.Services
                 if (disposing)
                 {
                     EndSession();
+
+                    TransferStarted -= OnTransferStarted;
+                    TransferSample -= OnSampleReceived;
+                    TransferCompleted -= OnTransferCompleted;
+                    TransferWarning -= OnWarningRaised;
+
+                    analysisService.AccelerationSpike -= OnAccelerationSpikeDetected;
+                    analysisService.OutOfBandWarning -= OnOutOfBandWarningDetected;
+
                     writerService?.Dispose();
                     loggingService?.Dispose();
                 }
@@ -164,5 +179,18 @@ namespace Service.Services
         {
             loggingService.Log($"{e.LogStatus}: Warning raised: {e.Message}");
         }
+
+        public void OnAccelerationSpikeDetected(object sender, AccelerationArgument e)
+        {
+            Console.WriteLine($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Aprevious: {Math.Round(e.Aprevious,2)}, Difference: {Math.Round(e.Difference,2)}");
+            loggingService.Log($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Aprevious: {Math.Round(e.Aprevious,2)}, Difference: {Math.Round(e.Difference,2)}");
+        }
+
+        public void OnOutOfBandWarningDetected(object sender, DeviationArgument e)
+        {
+            Console.WriteLine($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Amean: {Math.Round(e.Amean,2)}");
+            loggingService.Log($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Amean: {Math.Round(e.Amean,2)}");
+        }
+
     }
 }

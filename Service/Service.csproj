@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -44,7 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\Arguments\AccelerationArgument.cs" />
+    <Compile Include="Events\Arguments\DeviationArgument.cs" />
     <Compile Include="Events\Arguments\TransferArgument.cs" />
+    <Compile Include="Services\AnalysisService.cs" />
     <Compile Include="Services\DroneService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
