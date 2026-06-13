@@ -39,6 +39,7 @@ namespace Service.Services
 
                 analysisService.AccelerationSpike += OnAccelerationSpikeDetected;
                 analysisService.OutOfBandWarning += OnOutOfBandWarningDetected;
+                analysisService.WindSpike += OnWindSpikeDetected;
         }
         ~DroneService()
         {
@@ -105,7 +106,7 @@ namespace Service.Services
                 }
             }
             writerService.WriteInvalidSample(sample, responseMessage);
-            TransferSample?.Invoke(this, new TransferArgument { Message = responseMessage, LogStatus = LogStatusType.ERROR });
+            TransferWarning?.Invoke(this, new TransferArgument { Message = responseMessage, LogStatus = LogStatusType.ERROR });
             return new ResponseData($"Failed to push sample : {responseMessage}", ResponseStatusType.NACK, sessionStatus);
         }
 
@@ -150,6 +151,7 @@ namespace Service.Services
 
                     analysisService.AccelerationSpike -= OnAccelerationSpikeDetected;
                     analysisService.OutOfBandWarning -= OnOutOfBandWarningDetected;
+                    analysisService.WindSpike -= OnWindSpikeDetected;
 
                     writerService?.Dispose();
                     loggingService?.Dispose();
@@ -182,14 +184,20 @@ namespace Service.Services
 
         public void OnAccelerationSpikeDetected(object sender, AccelerationArgument e)
         {
-            Console.WriteLine($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Aprevious: {Math.Round(e.Aprevious,2)}, Difference: {Math.Round(e.Difference,2)}");
-            loggingService.Log($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Aprevious: {Math.Round(e.Aprevious,2)}, Difference: {Math.Round(e.Difference,2)}");
+            Console.WriteLine($"{e.AnalysisStatus}: {e.Message,-30} | Anorm: {Math.Round(e.Anorm,2),-5} | Aprevious: {Math.Round(e.Aprevious,2),-5} | Difference: {Math.Round(e.Difference,2),-5}");
+            loggingService.Log($"{e.AnalysisStatus}: {e.Message,-30} | Anorm: {Math.Round(e.Anorm,2),-5} | Aprevious: {Math.Round(e.Aprevious,2),-5} | Difference: {Math.Round(e.Difference,2),-5}");
         }
 
         public void OnOutOfBandWarningDetected(object sender, DeviationArgument e)
         {
-            Console.WriteLine($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Amean: {Math.Round(e.Amean,2)}");
-            loggingService.Log($"{e.AnalysisStatus}: {e.Message} | Anorm: {Math.Round(e.Anorm,2)}, Amean: {Math.Round(e.Amean,2)}");
+            Console.WriteLine($"{e.AnalysisStatus}: {e.Message,-30} | Anorm: {Math.Round(e.Anorm,2),-5} | Amean: {Math.Round(e.Amean,2),-5}");
+            loggingService.Log($"{e.AnalysisStatus}: {e.Message,-30} | Anorm: {Math.Round(e.Anorm,2),-5} | Amean: {Math.Round(e.Amean,2),-5}");
+        }
+
+        private void OnWindSpikeDetected(object sender, WindArgument e)
+        {
+            Console.WriteLine($"{e.AnalysisStatus}: {e.Message,-30} | WindEffect: {Math.Round(e.WindEffect,2),-5}");
+            loggingService.Log($"{e.AnalysisStatus}: {e.Message,-30} | WindEffect: {Math.Round(e.WindEffect,2),-5}");
         }
 
     }

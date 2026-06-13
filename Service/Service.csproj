@@ -48,6 +48,7 @@
     <Compile Include="Events\Arguments\AccelerationArgument.cs" />
     <Compile Include="Events\Arguments\DeviationArgument.cs" />
     <Compile Include="Events\Arguments\TransferArgument.cs" />
+    <Compile Include="Events\Arguments\WindArgument.cs" />
     <Compile Include="Services\AnalysisService.cs" />
     <Compile Include="Services\DroneService.cs" />
     <Compile Include="Program.cs" />

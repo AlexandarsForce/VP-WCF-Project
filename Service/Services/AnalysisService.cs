@@ -16,11 +16,14 @@ namespace Service.Services
     {
         public delegate void AccelerationHandler(object sender, AccelerationArgument e);
         public delegate void DeviationHandler(object sender, DeviationArgument e);
+        public delegate void WindHandler(object sender, WindArgument e);
 
         private double anorm = 0;
         private double previousAnorm = 0;
         private double asum = 0;
         private double amount = 0;
+        private double aMean = 0;
+        private double windEffect = 0;
 
         private double aThreshold;
         private double wThreshold;
@@ -28,6 +31,7 @@ namespace Service.Services
 
         public event AccelerationHandler AccelerationSpike;
         public event DeviationHandler OutOfBandWarning;
+        public event WindHandler WindSpike;
 
 
         public AnalysisService() 
@@ -40,17 +44,20 @@ namespace Service.Services
 
         public void AnalyzeSample(DroneSample sample)
         {
-            double aDifference;
-            double aMean;
-
             amount++;
-            previousAnorm = anorm;
-            anorm = Math.Sqrt(Math.Pow(sample.LinearAccelerationX, 2) + Math.Pow(sample.LinearAccelerationY, 2) + Math.Pow(sample.LinearAccelerationZ, 2));
-            asum += anorm;
+            AnalyzeAcceleration(sample.LinearAccelerationX, sample.LinearAccelerationY, sample.LinearAccelerationZ);
+            AnalyzeDeviation(asum, amount);
+            AnalyzeWind(sample.WindSpeed, sample.WindAngle);
+        }
+
+        private void AnalyzeAcceleration(double linearAccelerationX, double linearAccelerationY, double linearAccelerationZ)
+        {
             if (amount > 1)
             {
-                aMean = asum / amount;
-                aDifference = anorm - previousAnorm;
+                previousAnorm = anorm;
+                anorm = Math.Sqrt(Math.Pow(linearAccelerationX, 2) + Math.Pow(linearAccelerationY, 2) + Math.Pow(linearAccelerationZ, 2));
+                asum += anorm;
+                double aDifference = anorm - previousAnorm;
 
                 if (Math.Abs(aDifference) > aThreshold)
                 {
@@ -73,19 +80,55 @@ namespace Service.Services
                         AccelerationSpike?.Invoke(this, e);
                     }
                 }
+            }
+        }
 
+        private void AnalyzeDeviation(double sum, double count)
+        {
+            if (count > 1)
+            {
+                aMean = sum / count;
+                DeviationArgument e = new DeviationArgument()
+                {
+                    Message = "Out of band warrning detected.",
+                    AnalysisStatus = AnalysisStatusType.ABOVE_THRESHOLD,
+                    Anorm = anorm,
+                    Amean = aMean
+                };
                 if (anorm > (aMean * (1 + dThreshold)))
                 {
-                    OutOfBandWarning?.Invoke(this, new DeviationArgument { Message = "Out of band warrning detected.", AnalysisStatus = AnalysisStatusType.ABOVE_THRESHOLD, Anorm = anorm, Amean = aMean });
+                    OutOfBandWarning?.Invoke(this, e);
                 }
                 else if (anorm < (aMean * (1 - dThreshold)))
                 {
-                    OutOfBandWarning?.Invoke(this, new DeviationArgument { Message = "Out of band warrning detected.", AnalysisStatus = AnalysisStatusType.BELOW_THRESHOLD, Anorm = anorm, Amean = aMean });
+                    e.AnalysisStatus = AnalysisStatusType.BELOW_THRESHOLD;
+                    OutOfBandWarning?.Invoke(this, e);
                 }
             }
-
         }
 
-
+        private void AnalyzeWind(double windSpeed, double windAngle)
+        {
+            double wind = windSpeed * Math.Sin(windAngle);
+            windEffect = Math.Abs(wind);
+            if (windEffect > wThreshold)
+            {
+                WindArgument e = new WindArgument()
+                {
+                    Message = "Wind spike detected.",
+                    AnalysisStatus = AnalysisStatusType.ABOVE_THRESHOLD,
+                    WindEffect = windEffect
+                };
+                if (wind > 0)
+                {
+                    WindSpike?.Invoke(this, e);
+                }
+                else
+                {
+                    e.AnalysisStatus = AnalysisStatusType.BELOW_THRESHOLD;
+                    WindSpike?.Invoke(this, e);
+                }
+            }
+        }
     }
 }
