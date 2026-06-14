@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Dataset\log_session.csv" />
     <None Include="Dataset\measurements_session.csv" />
     <None Include="Errors\rejects.csv" />
   </ItemGroup>
@@ -69,6 +68,8 @@
       <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Dataset\log_session.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

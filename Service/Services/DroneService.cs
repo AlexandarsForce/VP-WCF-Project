@@ -29,7 +29,7 @@ namespace Service.Services
         public DroneService()
         {
             writerService = new WriterService();
-            loggingService = new LoggingService("log_session.csv");
+            loggingService = new LoggingService("log_session.txt");
             analysisService = new AnalysisService();
 
             TransferStarted += OnTransferStarted;
