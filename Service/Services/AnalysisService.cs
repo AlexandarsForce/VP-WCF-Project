@@ -52,10 +52,10 @@ namespace Service.Services
 
         private void AnalyzeAcceleration(double linearAccelerationX, double linearAccelerationY, double linearAccelerationZ)
         {
+            previousAnorm = anorm;
+            anorm = Math.Sqrt(Math.Pow(linearAccelerationX, 2) + Math.Pow(linearAccelerationY, 2) + Math.Pow(linearAccelerationZ, 2));
             if (amount > 1)
             {
-                previousAnorm = anorm;
-                anorm = Math.Sqrt(Math.Pow(linearAccelerationX, 2) + Math.Pow(linearAccelerationY, 2) + Math.Pow(linearAccelerationZ, 2));
                 asum += anorm;
                 double aDifference = anorm - previousAnorm;
 

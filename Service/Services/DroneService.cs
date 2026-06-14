@@ -32,14 +32,14 @@ namespace Service.Services
             loggingService = new LoggingService("log_session.csv");
             analysisService = new AnalysisService();
 
-                TransferStarted += OnTransferStarted;
-                TransferSample += OnSampleReceived;
-                TransferCompleted += OnTransferCompleted;
-                TransferWarning += OnWarningRaised;
+            TransferStarted += OnTransferStarted;
+            TransferSample += OnSampleReceived;
+            TransferCompleted += OnTransferCompleted;
+            TransferWarning += OnWarningRaised;
 
-                analysisService.AccelerationSpike += OnAccelerationSpikeDetected;
-                analysisService.OutOfBandWarning += OnOutOfBandWarningDetected;
-                analysisService.WindSpike += OnWindSpikeDetected;
+            analysisService.AccelerationSpike += OnAccelerationSpikeDetected;
+            analysisService.OutOfBandWarning += OnOutOfBandWarningDetected;
+            analysisService.WindSpike += OnWindSpikeDetected;
         }
         ~DroneService()
         {
